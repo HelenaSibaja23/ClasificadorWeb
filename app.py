@@ -258,7 +258,6 @@ def inicio():
     "/subir",
     methods=["POST"]
 )
-
 def subir():
 
     archivo = request.files["imagen"]
@@ -275,12 +274,24 @@ def subir():
     img = cv2.imread(
         ruta
     )
-
+    
     img = cv2.resize(
         img,
         (224,224)
     )
-
+    
+    img = dullrazor(
+        img
+    )
+    
+    img = zscore_normalize(
+        img
+    )
+    
+    img = remove_reflective_artifacts_auto(
+        img
+    )
+    
     clase, confianza, tiempo = (
         clasificar_imagen(
             img
@@ -292,17 +303,17 @@ def subir():
         resultado = (
             "Lesión Benigna"
         )
-
+    
         resultado_color = "#2E8B57"
-
+    
     else:
-
+    
         resultado = (
             "Lesión Maligna"
         )
-
+    
         resultado_color = "#B22222"
-
+    
     return render_template(
         "index.html",
         resultado=resultado,
