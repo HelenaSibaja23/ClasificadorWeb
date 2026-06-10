@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+
+<html lang="es">
+
+<head>
+<meta charset="UTF-8">
+
+<title>
+Clasificador de lesiones cutáneas
+</title>
+
+<style>
+
+body{
+    background:#efefef;
+    font-family:Arial, sans-serif;
+    margin:0;
+    padding:20px;
+}
+
+.titulo{
+    text-align:center;
+    color:#7A0019;
+    font-size:52px;
+    font-weight:bold;
+    margin-top:20px;
+}
+
+.subtitulo{
+    text-align:center;
+    color:#666666;
+    font-size:24px;
+}
+
+.logo{
+    text-align:center;
+    margin-top:10px;
+    margin-bottom:20px;
+}
+
+.logo img{
+    width:180px;
+}
+
+.contenedor{
+    display:flex;
+    gap:20px;
+}
+
+.izquierda{
+    flex:3;
+}
+
+.derecha{
+
+    width:320px;
+
+    display:flex;
+
+    flex-direction:column;
+}
+
+.panel-imagen{
+
+    height:700px;
+
+    background:white;
+
+    border:2px solid #909090;
+
+    border-radius:10px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    overflow:hidden;
+}
+
+.panel-imagen img{
+
+    max-width:100%;
+
+    max-height:100%;
+}
+
+.panel-resultados{
+
+    background:#f7f7f7;
+
+    border:2px solid #b0b0b0;
+
+    border-radius:10px;
+
+    padding:10px;
+}
+
+.resultado-box{
+
+    background:white;
+
+    border:2px solid #b0b0b0;
+
+    border-radius:10px;
+
+    text-align:center;
+
+    margin-bottom:8px;
+
+    padding:8px;
+}
+
+.resultado-titulo{
+
+    font-size:32px;
+
+    font-weight:bold;
+}
+
+.advertencia{
+
+    margin-top:15px;
+
+    background:#FFF8DC;
+
+    border:1px solid #D3D3D3;
+
+    border-radius:8px;
+
+    padding:10px;
+
+    text-align:center;
+
+    font-weight:bold;
+
+    color:#444444;
+   
+    font-size:22px;
+
+    line-height:1.4;
+}
+
+.boton{
+
+    margin-top:auto;
+
+    background:#7A0019;
+
+    color:white;
+
+    border:none;
+
+    padding:12px;
+
+    border-radius:8px;
+
+    font-size:20px;
+
+    font-weight:bold;
+
+    cursor:pointer;
+}
+
+.boton:hover{
+    background:#99001f;
+}
+
+.boton-limpiar{
+
+    margin-top:10px;
+
+    background:#808080;
+
+    color:white;
+
+    border:none;
+
+    padding:12px;
+
+    border-radius:8px;
+
+    font-size:20px;
+
+    font-weight:bold;
+
+    cursor:pointer;
+}
+
+.boton-limpiar:hover{
+    background:#A0A0A0;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="titulo">
+Sistema de apoyo para la clasificación de lesiones cutáneas
+</div>
+
+<div class="subtitulo">
+Maestría en Ciencias en Ingeniería Electrónica - ESIME Zacatenco
+</div>
+
+<div class="logo">
+<img src="/static/ipn.png">
+</div>
+
+<div class="contenedor">
+
+<div class="izquierda">
+
+<div class="panel-imagen">
+
+<img
+id="preview"
+src="{% if imagen %}/uploads/{{ imagen }}{% endif %}"
+style="
+max-width:100%;
+max-height:100%;
+{% if imagen %}
+display:block;
+{% else %}
+display:none;
+{% endif %}
+"
+>
+
+<p
+id="textoImagen"
+style="
+display:
+{% if imagen %}
+none
+{% else %}
+block
+{% endif %}
+;"
+>
+No se ha cargado ninguna imagen
+</p>
+
+</div>
+
+</div>
+
+<div class="derecha">
+
+<div class="panel-resultados">
+
+<div class="resultado-box">
+
+<div
+class="resultado-titulo"
+
+style="
+color:
+{{ resultado_color if resultado_color else 'black' }};
+"
+>
+
+Resultado:
+{{ resultado if resultado else "---" }}
+
+</div>
+
+</div>
+
+<div class="resultado-box">
+
+Confianza:
+{{ confianza if confianza else "---" }}
+
+</div>
+
+<div class="resultado-box">
+
+Tiempo de inferencia:
+{{ tiempo if tiempo else "---" }}
+
+</div>
+
+</div>
+
+<div class="advertencia">
+
+⚠ Esta herramienta es un sistema de apoyo para la clasificación de lesiones cutáneas.<br><br>
+
+No sustituye la evaluación ni el diagnóstico realizado por un médico especialista.
+
+</div>
+
+<form
+id="formImagen"
+action="/subir"
+method="POST"
+enctype="multipart/form-data"
+>
+
+<input
+type="file"
+name="imagen"
+id="imagenInput"
+accept="image/*"
+style="display:none;"
+>
+
+</form>
+
+<button
+class="boton"
+onclick="document.getElementById('imagenInput').click();"
+>
+Cargar imagen de lesión
+</button>
+
+<button
+class="boton-limpiar"
+onclick="window.location.href='/'"
+>
+Limpiar
+</button>
+
+</div>
+
+</div>
+
+<script>
+
+const input =
+document.getElementById("imagenInput");
+
+input.addEventListener(
+"change",
+function(event){
+
+const archivo =
+event.target.files[0];
+
+if(!archivo){
+return;
+}
+
+const lector =
+new FileReader();
+
+lector.onload =
+function(e){
+
+const preview =
+document.getElementById(
+"preview"
+);
+
+const texto =
+document.getElementById(
+"textoImagen"
+);
+
+preview.src =
+e.target.result;
+
+preview.style.display =
+"block";
+
+texto.style.display =
+"none";
+
+document
+.getElementById(
+"formImagen"
+)
+.submit();
+
+};
+
+lector.readAsDataURL(
+archivo
+);
+
+}
+);
+
+</script>
+
+</body>
+</html>
