@@ -14,8 +14,8 @@ opencv-python==4.13.0.92
 packaging==26.0
 pillow==12.2.0
 sympy==1.14.0
-torch==2.12.0
-torchvision==0.27.0
+torch==2.5.1
+torchvision==0.20.1
 typing_extensions==4.15.0
 Werkzeug==3.1.8
 
