@@ -2,6 +2,9 @@ from flask import Flask
 from flask import render_template
 from flask import request
 
+import time
+import gc
+
 import os
 
 import torch
@@ -196,13 +199,15 @@ def clasificar_imagen(img):
 
     tensor = tensor.to(device)
 
+    gc.collect()
+
     inicio = time.perf_counter()
 
-    with torch.no_grad():
+    with torch.inference_mode():
 
-        salida = modelo(
-            tensor
-        )
+    	salida = modelo(
+        	tensor
+    )
 
     fin = time.perf_counter()
 
